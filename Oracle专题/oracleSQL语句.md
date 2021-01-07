@@ -4,7 +4,7 @@
 
 ****
 
-```
+```sql
 select sess.sid,
 	   sess.serial#,
 	   lo.oracle_username,
@@ -18,7 +18,7 @@ select sess.sid,
 
 ****
 
-```
+```sql
 select * from v$session t1, v$locked_object t2 
 	where t1.sid = t2.SESSION_ID;
 ```
@@ -27,7 +27,7 @@ select * from v$session t1, v$locked_object t2
 
 -- --
 
-```
+```sql
 select sql_text
   from v$sqltext a
  where (a.HASH_VALUE, a.ADDRESS) in
@@ -42,7 +42,7 @@ select sql_text
 
 ****
 
-```
+```sql
 如有記錄則表示有lock，記錄下SID和serial# ，將記錄的ID替換下面的738,1429，即可解除LOCK  
 alter system kill session 'SID,serial#';  
 ```
@@ -51,7 +51,7 @@ alter system kill session 'SID,serial#';
 
 ****
 
-```
+```sql
 select username,lock_date from dba_users where username='oracle用户名';
 ```
 
@@ -59,7 +59,7 @@ select username,lock_date from dba_users where username='oracle用户名';
 
 ****
 
-```
+```sql
 ALTER USER 'oracle用户名' ACCOUNT UNLOCK;
 ```
 
@@ -67,7 +67,7 @@ ALTER USER 'oracle用户名' ACCOUNT UNLOCK;
 
 ****
 
-```
+```sql
 SELECT username,PROFILE FROM dba_users;
 
 select * from dba_profiles s where s.profile='DEFAULT' and resource_name='PASSWORD_LIFE_TIME';
@@ -79,7 +79,7 @@ alter profile default limit PASSWORD_LIFE_TIME UNLIMITED;
 
 ****
 
-```
+```sql
 create public database link DDZXDB connect to CDTSCHEDULE
 identified by cdtschedule
 using 'DDZXDB';
@@ -93,7 +93,7 @@ using 'CDTDB';
 
 ****
 
-```
+```sql
 SELECT TU.TABLESPACE_NAME                                    AS "TABLESPACE_NAME",
        TT.TOTAL - TU.USED                                    AS "FREE(G)",
        TT.TOTAL                                              AS "TOTAL(G)",
@@ -114,7 +114,7 @@ WHERE TU.TABLESPACE_NAME = TT.TABLESPACE_NAME;
 
 ****
 
-```
+```sql
 select username,sid,serial# from v$session 
                           sid
 alter system kill session'517,1957' 
@@ -152,7 +152,7 @@ select total.tablespace_name,
 
 ****
 
-```
+```sql
 select s.sid,s.serial#,s.sql_id,v.usn,segment_name,r.status, v.rssize/1024/1024 mb
   2    From dba_rollback_segs r, v$rollstat v,v$transaction t,v$session s
   3    Where r.segment_id = v.usn and v.usn=t.xidusn and t.addr=s.taddr
@@ -163,7 +163,7 @@ select s.sid,s.serial#,s.sql_id,v.usn,segment_name,r.status, v.rssize/1024/1024 
 
 ****
 
-```
+```sql
 1、创建DIRECTORY
 create directory dir_ccre as '/home/dmpfile'; 
 grant read,write on directory dir_ccre to public;
@@ -180,15 +180,15 @@ impdp cdt170512/cdt170512 DIRECTORY=dir_dp dumpfile=cdt170512_%u.dmp parallel=4 
 
 ****
 
-```
-expdp  oracle用户名/oracle用户名密码  directory=导出目录  dumpfile=dmp文件名称  logfile=db1-190831.log  full=y
+```sql
+expdp oracle用户名/oracle用户名密码  directory=导出目录  dumpfile=dmp文件名称  logfile=db1-190831.log  full=y
 ```
 
 <h3>创建永久表空间</h3>
 
 ****
 
-```
+```sql
 create bigfile tablespace ITREASURY 
 logging 
 datafile '/u01/app/oradata/orcl/itreasury2.dbf' 
@@ -202,7 +202,7 @@ extent management local autoallocate;
 
 ****
 
-```
+```sql
 create temporary tablespace TEMP1 
 tempfile '/u01/app/oradata/orcl/temp1.dbf' size 100M
 autoextend on next 100M maxsize unlimited extent management local;
@@ -218,7 +218,7 @@ DROP TABLESPACE TEMP INCLUDING CONTENTS AND DATAFILES;
 
 ****
 
-```
+```sql
 impdp oracle用户名/oracle用户名密码  directory=dmp文件目录 dumpfile=dmp文件名称 parallel=4 logfile=import.log remap_schema=cnmef:cnmef0814 schemas=oracle用户名;
 ```
 
@@ -226,7 +226,7 @@ impdp oracle用户名/oracle用户名密码  directory=dmp文件目录 dumpfile=
 
 ---
 
-```
+```sql
 impdp oracle用户名/oracle用户名密码  directory=dmp文件目录 dumpfile=dmp文件名称 parallel=4 logfile=import.log remap_schema=cnmef:cnmef0814  remap_tablespace=ITREASURY:CDTFC  schemas=oracle用户名;
 ```
 
@@ -234,7 +234,7 @@ impdp oracle用户名/oracle用户名密码  directory=dmp文件目录 dumpfile=
 
 ****
 
-```
+```sql
 alter tablespace CDTFC add datafile '/u01/oradata/orcl/CDTFC06.dbf' size 2048m reuse;
 
 alter tablespace “你的表空间” add datafile '文件路径' size 50M reuse;
@@ -244,7 +244,7 @@ alter tablespace “你的表空间” add datafile '文件路径' size 50M reus
 
 ****
 
-```
+```sql
 select tablespace_name,file_name,autoextensible from dba_data_files where tablespace_name = 'TEMP';
 ```
 
@@ -252,7 +252,7 @@ select tablespace_name,file_name,autoextensible from dba_data_files where tables
 
 ****
 
-```
+```sql
 alter database datafile '/oracle/oradata/orcl/CDTFC.dbf' autoextend on;
 ```
 
@@ -260,7 +260,7 @@ alter database datafile '/oracle/oradata/orcl/CDTFC.dbf' autoextend on;
 
 ****
 
-```
+```sql
 select tablespace_name,file_name,autoextensible from dba_data_files where tablespace_name = 'temp';
 ```
 
@@ -268,13 +268,13 @@ select tablespace_name,file_name,autoextensible from dba_data_files where tables
 
 ****
 
-```
+```sql
 ALTER DATABASE DATAFILE 'D:\oracle\product\10.2.0\db_1\oradata\orcl\CDTFC.dbf' AUTOEXTEND ON NEXT 50M MAXSIZE 1G;
 ```
 
 <h3>Oracle解锁用户步骤</h3>
 
-```
+```sql
 1.sqlplus / as sysdba						--登录数据库管理员用户
 
 2.alter user 用户名 account unlock;		  --解锁用户
@@ -282,7 +282,7 @@ ALTER DATABASE DATAFILE 'D:\oracle\product\10.2.0\db_1\oradata\orcl\CDTFC.dbf' A
 
 <h3>Oracle修改默认表空间</h3>
 
-```
+```sql
 1.sqlplus cdt/dhcc123          								--登录需要修改的用户名/密码
 
 2.alter user '需要修改的用户名' default tablespace '表空间名称';
@@ -292,7 +292,7 @@ ALTER DATABASE DATAFILE 'D:\oracle\product\10.2.0\db_1\oradata\orcl\CDTFC.dbf' A
 
 <h2>Oracle跨库复制表结构和表数据</h2>
 
-```
+```sql
 create table 新表名 as select  * from 数据库用户名.旧表名;
 
 create table sett_Foreigntradingdetail as select * from cnmef1121.sett_Foreigntradingdetail;
@@ -311,39 +311,25 @@ create table sett_Foreigntradingdetail as select * from cnmef1121.sett_Foreigntr
 
 
 
-
-
 ## <font color="red">Oracle函数</font>
 
 ### nal()函数
-
-----
 
 
 
 ### nvl()函数
 
-----
-
 
 
 ### concat()函数
 
-----
-
-```
-将两个不同的字符串连接在一起。请注意，Oracle的CONCAT()只允许两个参数；换言之，一次只能将两个字符串串连起来。不过，在Oracle中，我们可以用'||'来一次串连多个字符串，例如'a'||'b'||'c'。
-```
+​	将两个不同的字符串连接在一起。请注意，Oracle的CONCAT()只允许两个参数；换言之，一次只能将两个字符串串连起来。不过，在Oracle中，我们可以用'||'来一次串连多个字符串，例如'a'||'b'||'c'。
 
 ### decode()函数
-
-----
 
 
 
 ### sysdate()函数
-
-----
 
 
 
@@ -370,15 +356,12 @@ create table sett_Foreigntradingdetail as select * from cnmef1121.sett_Foreigntr
 
 ### last_day()函数
 
-----
-
-```
-LAST_DAY函数返回指定日期对应月份的最后一天。
-```
+​	LAST_DAY函数返回指定日期对应月份的最后一天。
 
 ### over()函数
 
-----
+​	
 
+### binand()函数
 
-
+​	
