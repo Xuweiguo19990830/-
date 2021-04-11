@@ -360,8 +360,11 @@ create table sett_Foreigntradingdetail as select * from cnmef1121.sett_Foreigntr
 
 ### over()函数
 
-​	
+​	分析函数
 
 ### binand()函数
 
-​	
+
+
+### WMSYS.WM_CONCAT()函数
+
