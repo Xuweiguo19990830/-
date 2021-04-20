@@ -398,11 +398,373 @@ Booch对对象提出了一个更加简洁的描述：对象具有状态、行为
 
 #### 5.1 用构造器确保初始化
 
+​	在Java中，通过提供构造器，类的设计者可确保每个对象都会得到初始化。创建对象时，如果其类具有构造器，Java就会在用户有能力操作对象之前自动调用相应的构造器，从而保证了初始化的进行。
+
+​	接下来的问题就是如何命名这个方法。有两个问题：第一、所取的任何名字都可能与类的某个成员名称相冲突；第二、调用构造器是编译器的责任，所以必须让编译器知道应该调用哪些方法。C++语言中采用的解决方案看来最简单且更符合逻辑，所以在Java中也采用了这种方案：即构造器和采用与类相同的名称。
+
+​	以下就是一个带有构造器的简单类：
+
+​		
+
+```java
+	public class Rock {
+        // This is a constructor
+		public Rock() {
+            System.out.println("Rock");
+        }
+	}
+
+	public class SimpleConstructor {
+        public static void main(String[] args) {
+            for(int i = 0; i < 10;i++) {
+                new Rock();
+            }
+        }
+    }
+```
+
 ​	
+
+​	现在，在创建对象时：
+
+```java
+	new Rock();	// 实例化Rock对象时，会调用该类的构造方法
+```
+
+​	将会为对象分配存储空间，并调用相应的构造器。这样就确保了在你能操作对象之前，它已经被恰当的初始化了。
+
+​	请注意，**由于构造器的名称必须与类名完全相同，所以“每个方法首字母小写”的编码风格并不适用于构造器**。
+
+​	不接受任何参数的构造器叫做**默认构造器**，Java文档中通常使用术语**无参构造器**，但是默认构造器在Java出现之前已经使用许多年了，所以我仍旧倾向使用它。但是和其他方法一样，构造器也能带有形式参数，以便指定如何创建对象。对上述例子稍加修改，即可使构造器接受一个参数：
+
+​	
+
+```java
+	public class RockTwo {	
+		public RockTwo(int i) {
+			System.out.println("Rock" + i);
+		}
+	}
+	
+	public class SimpleConstructorTwo {
+        public static void main(String[] args) {
+            for(int i = 0; i < 8;i++) {
+                new Rock(i);
+            }
+        }
+    }
+```
+
+​	
+
+​	有了构造器形式参数，就可以在初始化对象时提供实际参数。例如，假设类Tree有一个构造器，它接受一个整型变量来表示树的高度，就可以这样创建一个Tree对象：
+
+```java
+	Tree tree = new Tree(12);
+```
+
+​	如果**Tree(int)是Tree类中唯一的构造器**，那么编译器将不会允许你以其他任何方式创建Tree对象（除非在Tree类中再创建一个构造器方法）。
+
+​	构造器是一种特殊类型的方法，因为它没有返回值。这与返回值为空（void）明显不同。对于空返回值，尽管方法本身不会自动返回什么，但仍可选择让它返回别的东西（return;和Exception）。构造器则不会返回任何东西，你别无选择（new表达式确实返回了对新建对象的引用，但构造器本身并没有任何返回值）。假如构造器具有返回值，并且允许人们自行选择返回类型，那么势必得让编译器知道该如何处理此返回值。
 
 #### 5.2 方法重载
 
+​	任何程序设计语言都具备的一项重要特性就是对名字的运用。当创建一个对象时，也就给此对象分配到的存储空间取了一个名字。所谓方法则是给某个动作取得名字。通过使用名字，你可以引用所有的对象和方法。名字起的好可以使系统更易于理解和修改。就好比写散文——目的是让读者易于理解。
+
+​	大多数程序设计语言（尤其是C）要求为每个方法（在这些语言中经常称为函数）都提供一个独一无二的标识符。所以绝不能用名为print()的函数显示了整数之后，又用一个名为print()的函数显示浮点数——每个函数都要有唯一的名称。
+
+​	在Java（和C++）里，构造器是强制重载方法名的另一个原因。既然构造器的名字已经由类名所决定，就只能有一个构造器名。那么要想用多种方式创建一个对象该怎么办呢？假设你要创建一个类，既可以用标准的方式初始化，也可以从文件里读取信息来初始化。这就需要两个构造器：一个默认构造器，另一个取字符串作为形式参数——该字符串表示初始化对象所需的文件名称（或路径），由于都是构造器，所以它们必须有相同的名称，即类名。**为了让方法名相同而形式参数不同的构造器同时存在，必须使用方法重载**。
+
+	##### 5.2.1 区分重载方法
+
+​	要是几个方法都有相同的名称，Java如何才能知道你指的是哪一个呢？其实规则很简单：每一个重载的方法都必须有一个独一无二的参数类型列表。
+
+​	稍加思考，就会觉得这是合理的。毕竟，对于名字相同的方法，除了参数类型的差异以外，还有什么办法能把它们区别开呢（访问修饰符的不同，返回值的不同，抛出的异常类型不同）？
+
+​	甚至参数列表顺序的不同也足以区分两个方法。不过，一般情况下别这么做，因为这会使代码难以维护：
+
+​			
+
+```java
+public class OverloadingOrder {
+    public static void f(String str, int num) {
+        System.out.println("str:" + str + ",num:" + num);
+    }
+
+    public static void f(int num, String str) {
+        System.out.println("num:" + num + ",str:" + str);
+    }
+
+    public static void main(String[] args) {
+        f("String first", 11);
+        f(99, "Int first");
+    }
+}
+```
+
+​		
+
+​	上例中两个print()方法虽然声明了相同的参数，但顺序不同，因此得以区分。
+
+##### 5.2.2 涉及基本类型的重载
+
+​	基本类型能从一个”较小“的类型自动提升至一个”较大“的类型，此过程中一旦涉及到重载，可能会造成一些混淆。
+
+​		
+
+```java
+	package com.github.initandclean;
+
+    public class OverloadingOrder {
+
+        public void f1(char c) {
+            System.out.println("f1(char)");
+        }
+
+        public void f1(byte b) {
+            System.out.println("f1(byte)");
+        }
+
+        public void f1(short s) {
+            System.out.println("f1(short)");
+        }
+
+        public void f1(int i) {
+            System.out.println("f1(int)");
+        }
+
+        public void f1(long l) {
+            System.out.println("f1(long)");
+        }
+
+        public void f1(float f) {
+            System.out.println("f1(float)");
+        }
+
+        public void f1(double d) {
+            System.out.println("f1(double)");
+        }
+
+        public void f2(byte b) {
+            System.out.println("f2(byte)");
+        }
+
+        public void f2(short s) {
+            System.out.println("f2(short)");
+        }
+
+        public void f2(int i) {
+            System.out.println("f2(int)");
+        }
+
+        public void f2(long l) {
+            System.out.println("f2(long)");
+        }
+
+        public void f2(float f) {
+            System.out.println("f2(float)");
+        }
+
+        public void f2(double d) {
+            System.out.println("f2(double)");
+        }
+
+        public void f3(short s) {
+            System.out.println("f3(short)");
+        }
+
+        public void f3(int i) {
+            System.out.println("f3(int)");
+        }
+
+        public void f3(long l) {
+            System.out.println("f3(long)");
+        }
+
+        public void f3(float f) {
+            System.out.println("f3(float)");
+        }
+
+        public void f3(double d) {
+            System.out.println("f3(double)");
+        }
+
+        public void f4(int i) {
+            System.out.println("f4(int)");
+        }
+
+        public void f4(long l) {
+            System.out.println("f4(long)");
+        }
+
+        public void f4(float f) {
+            System.out.println("f4(float)");
+        }
+
+        public void f4(double d) {
+            System.out.println("f4(double)");
+        }
+
+        public void f5(long l) {
+            System.out.println("f5(long)");
+        }
+
+        public void f5(float f) {
+            System.out.println("f5(float)");
+        }
+
+        public void f5(double d) {
+            System.out.println("f5(double)");
+        }
+
+        public void f6(float f) {
+            System.out.println("f6(float)");
+        }
+
+        public void f6(double d) {
+            System.out.println("f6(double)");
+        }
+
+        public void f7(double d) {
+            System.out.println("f7(double)");
+        }
+
+        public void testConstVal() {
+            System.out.println(5);
+            f1(5);
+            f2(5);
+            f3(5);
+            f4(5);
+            f5(5);
+            f6(5);
+            f7(5);
+        }
+
+        public void testChar() {
+            char c = 'x';
+            System.out.println("char:");
+            f1(c);
+            f2(c);
+            f3(c);
+            f4(c);
+            f5(c);
+            f6(c);
+            f7(c);
+        }
+
+        public void testByte() {
+            byte b = 0;
+            System.out.println("byte:");
+            f1(b);
+            f2(b);
+            f3(b);
+            f4(b);
+            f5(b);
+            f6(b);
+            f7(b);
+        }
+
+        public void testShort() {
+            short s = 0;
+            System.out.println("short:");
+            f1(s);
+            f2(s);
+            f3(s);
+            f4(s);
+            f5(s);
+            f6(s);
+            f7(s);
+        }
+
+        public void testInt() {
+            int s = 0;
+            System.out.println("int:");
+            f1(s);
+            f2(s);
+            f3(s);
+            f4(s);
+            f5(s);
+            f6(s);
+            f7(s);
+        }
+
+        public void testLong() {
+            long s = 0;
+            System.out.println("long:");
+            f1(s);
+            f2(s);
+            f3(s);
+            f4(s);
+            f5(s);
+            f6(s);
+            f7(s);
+        }
+
+        public void testFloat() {
+            float s = 0;
+            System.out.println("float:");
+            f1(s);
+            f2(s);
+            f3(s);
+            f4(s);
+            f5(s);
+            f6(s);
+            f7(s);
+        }
+
+        public void testDouble() {
+            double s = 0;
+            System.out.println("double:");
+            f1(s);
+            f2(s);
+            f3(s);
+            f4(s);
+            f5(s);
+            f6(s);
+            f7(s);
+        }
+    }
+	
+	public class TestOverloadingOrder {
+
+        @Test
+        public void test() {
+            OverloadingOrder overloadingOrder = new OverloadingOrder();
+            overloadingOrder.testConstVal();
+            overloadingOrder.testChar();
+            overloadingOrder.testByte();
+            overloadingOrder.testShort();
+            overloadingOrder.testInt();
+            overloadingOrder.testLong();
+            overloadingOrder.testFloat();
+            overloadingOrder.testDouble();
+        }
+	}
+```
+
 ​	
+
+​	你会发现常数值5被当作int值处理，所以如果有某个重载方法接受int类型参数，它就会被调用。至于其它情况，**如果传入的数据类型（实际参数类型）小于方法中声明的形式参数类型，实际参数类型就会被提升**。char类型略有不同，如果无法找到恰好接受char类型参数的方法，就会把char类型直接提升至int类型（**Unicode字符可以用数字来表示**）。
+
+​	
+
+```java
+	@Test
+    public void test() {
+        char c = '徐';
+        System.out.println((int) c);
+        System.out.println(Character.toChars(24464)[0]);
+       
+    }
+```
+
+​	
+
+​	如果传入的实际参数大于重载方法声明的形式参数，会出现什么情况呢？
+
+
+
+​		
 
 #### 5.3 默认构造器
 
@@ -425,6 +787,8 @@ Booch对对象提出了一个更加简洁的描述：对象具有状态、行为
 ​	这意味着在你不再需要某个对象之前，如果必须执行某些动作，那么你得自己去做。Java并未提供“析构函数”或相似的概念，要做类似的清理工作，必须自己动手创建一个执行清理工作的普通方法。
 
 ​	只要程序没有濒临存储空间用完的那一刻，对象占用的空间就总也得不到释放。如果程序执行结束，并且垃圾回收器一直没有释放你创建的人户对象的存储空间，则随着程序的退出，那些资源也会全部交还给操作系统。这个策略是恰当的，因为垃圾回收本身也有开销（Java的垃圾回收机制有额外的线程、本地**native**资源开销），要是不使用它，那就不用支付这一部分的开销了。
+
+​	
 
 
 
