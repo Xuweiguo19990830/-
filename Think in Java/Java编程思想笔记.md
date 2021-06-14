@@ -196,6 +196,8 @@ Booch对对象提出了一个更加简洁的描述：对象具有状态、行为
 
 ​	在科学与工程领域，“e”代表自然数对数的基数，约等于2.718（Java中的Math.E给出了更精确的double类型值）。例如1.39 * e<sup>-43</sup>这样的指数表达式意味着1.39 * 2.718<sup>-43</sup>。然而，设计FORTRAN语言的时候，设计师们很自然地决定e代表“10的幂次”。这种做法很奇怪，因为FORTRAN最初是面向科学与工程设计领域的，它的设计者们对引入这样容易令人混淆的概念应该很敏感才对。但不管怎样，这种惯例在C、C++以及Java中被保留了下来。所以倘若习惯将e作为自然对数的基数使用，那么在Java中看到像**1.39e<sup>43</sup>f**这样的表达式时，请转换思维，它真正的含义是1.39 * 10<sup>43</sup>。
 
+
+
 #### 3.10 按位操作符
 
 ​	按位操作符用来操作**整数基本数据类型**中的单个“比特”（bit），即二进制位。按位操作符会对两个参数中对应的位执行布尔代数运算，并最终生成一个结果。
@@ -726,7 +728,6 @@ public class OverloadingOrder {
     }
 	
 	public class TestOverloadingOrder {
-
         @Test
         public void test() {
             OverloadingOrder overloadingOrder = new OverloadingOrder();
@@ -762,17 +763,213 @@ public class OverloadingOrder {
 
 ​	如果传入的实际参数大于重载方法声明的形式参数，会出现什么情况呢？
 
+​			
+
+```java
+package com.github.initandclean;
+
+public class OverloadingOrder {
+
+    public void f1(char c) {
+        System.out.println("f1(char)");
+    }
+
+    public void f1(byte b) {
+        System.out.println("f1(byte)");
+    }
+
+    public void f1(short s) {
+        System.out.println("f1(short)");
+    }
+
+    public void f1(int i) {
+        System.out.println("f1(int)");
+    }
+
+    public void f1(long l) {
+        System.out.println("f1(long)");
+    }
+
+    public void f1(float f) {
+        System.out.println("f1(float)");
+    }
+
+    public void f1(double d) {
+        System.out.println("f1(double)");
+    }
 
 
-​		
+    public void f2(char c) {
+        System.out.println("f2(char)");
+    }
+
+    public void f2(byte b) {
+        System.out.println("f2(byte)");
+    }
+
+    public void f2(short s) {
+        System.out.println("f2(short)");
+    }
+
+    public void f2(int i) {
+        System.out.println("f2(int)");
+    }
+
+    public void f2(long l) {
+        System.out.println("f2(long)");
+    }
+
+    public void f2(float f) {
+        System.out.println("f2(float)");
+    }
+
+
+    public void f3(char c) {
+        System.out.println("f3(char)");
+    }
+
+    public void f3(byte b) {
+        System.out.println("f3(byte)");
+    }
+
+    public void f3(short s) {
+        System.out.println("f3(short)");
+    }
+
+    public void f3(int i) {
+        System.out.println("f3(int)");
+    }
+
+    public void f3(long l) {
+        System.out.println("f3(long)");
+    }
+
+
+    public void f4(char c) {
+        System.out.println("f4(char)");
+    }
+
+    public void f4(byte b) {
+        System.out.println("f4(byte)");
+    }
+
+    public void f4(short s) {
+        System.out.println("f4(short)");
+    }
+
+    public void f4(int i) {
+        System.out.println("f4(int)");
+    }
+
+
+    public void f5(char c) {
+        System.out.println("f5(char)");
+    }
+
+    public void f5(byte b) {
+        System.out.println("f5(byte)");
+    }
+
+    public void f5(short s) {
+        System.out.println("f5(short)");
+    }
+
+    public void f6(char c) {
+        System.out.println("f6(char)");
+    }
+
+    public void f6(byte b) {
+        System.out.println("f6(byte)");
+    }
+
+    public void f7(char c) {
+        System.out.println("f7(char)");
+    }
+
+
+    public void testDouble() {
+        double s = 0;
+        System.out.println("double:");
+        f1(s);
+        f2((float) s);
+        f3((long) s);
+        f4((int) s);
+        f5((short) s);
+        f6((byte) s);
+        f7((char) s);
+    }
+}
+
+public class TestOverloadingOrder {
+    @Test
+    public void test() {
+        OverloadingOrder overloadingOrder = new OverloadingOrder();
+        overloadingOrder.testDouble();
+    }
+}
+```
+
+​	
+
+​	在这里，方法接受较小的基本类型作为参数。**如果传入的实际参数较大，就得通过类型转换来执行窄化转换**。如果不这样做，编译器就会报错。
+
+
+
+##### 5.2.3 以返回值区分重载方法
+
+​	读者可能会想：“在区分重载方法的时候，为什么只能以类名和方法的形式参数列表作为标准呢？能否考虑用方法的返回值来区分呢？”比如下面的两个方法，虽然它们有同样的名字和形式参数，但却很容易区分它们：
+
+
+
+```java
+	void f();
+	int f() {return 1; }
+```
+
+​	
+
+​	只要编译器可以根据语境明确判断出语义，比如在int x = f()中，那么的确可以据此区分重载方法。不过，有时你并不关心方法的返回值，你想要的是方法调用的其它效果（执行业务逻辑、校验信息是否合法），这是你可能会调用方法而忽略其返回值。所以，如果像下面这样调用方法：
+
+​	
+
+```java
+	f();
+```
+
+
+
+​	此时Java如何才能判断该调用哪一个f()呢？别人该如何理解这种代码呢？因此，根据方法的返回值来区分重载方法是行不通的。
+
+​	**重载的定义：在同一类中，方法名称相同，参数列表不同，与方法的返回值和访问修饰符无关**。
+
+
 
 #### 5.3 默认构造器
 
-​	
+​	如前所述，默认构造器（又名“无参”构造器）是没有形式参数的——它的作用是创建一个“默认对象”。如果你写的类中没有构造器，则编译器会自动帮你创建一个默认构造器。
+
+​	但是，如果类中已经定义了一个构造器（无论是否有参数），编译器就不会帮你自动创建默认构造器。	
 
 #### 5.4 this关键字
 
-​	
+​	如果有同一类型的两个对象，分别是a和b。你可能想知道，如何才能让这两个对象都能调用peel()方法呢？
+
+​		
+
+```java
+	public class Banana {
+		
+        public void peel(int i) {
+            
+        }
+        
+        public static void main(String[] args) {
+        	
+    	}
+	}
+```
+
+​		
 
 #### 5.5 清理：终结处理和垃圾回收
 
